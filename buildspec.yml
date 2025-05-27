@@ -3,13 +3,15 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 796973491290.dkr.ecr.ap-southeast-1.amazonaws.com
-      - echo Logging in to Docker Hub...
+      - echo Logging in to Docker Hub using credentials from Secrets Manager...
       - DOCKERHUB_SECRET=$(aws secretsmanager get-secret-value --secret-id dockerhub/credentials --query SecretString --output text)
       - DOCKERHUB_USERNAME=$(echo $DOCKERHUB_SECRET | jq -r .username)
       - DOCKERHUB_PASSWORD=$(echo $DOCKERHUB_SECRET | jq -r .password)
       - echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 796973491290.dkr.ecr.ap-southeast-1.amazonaws.com
+
       - REPOSITORY_URI=796973491290.dkr.ecr.ap-southeast-1.amazonaws.com/awsproject
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
 
@@ -20,9 +22,11 @@ phases:
 
   post_build:
     commands:
-      - echo Pushing Docker image...
+      - echo Pushing Docker image to ECR...
       - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo Writing image definition file...
       - printf '[{"name":"awsproject","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 
 artifacts:
-  files: imagedefinitions.json
+  files:
+    - imagedefinitions.json

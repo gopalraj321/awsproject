@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gopalan Restaurant - Home</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            color: #333;
+        }
+        
+        nav {
+            background: linear-gradient(to right, #ff512f, #dd2476);
+            padding: 12px;
+            text-align: center;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease-in-out;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        nav a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        #username-display {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            margin-left: auto;
+            margin-right: 20px;
+        }
+
+        /* Stylish Scrolling Text */
+        .scroll-text {
+            font-size: 28px;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(to right, #ff6a00, #ee0979);
+            padding: 10px;
+            border-radius: 10px;
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+            animation: scrollText 10s linear infinite;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes scrollText {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        h2 {
+            color: #fff;
+            font-size: 32px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Modern Gallery */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px auto;
+            max-width: 1000px;
+        }
+
+        /* Image Animation */
+        @keyframes popUp {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .gallery img {
+            width: 100%;
+            height: 220px;
+            border-radius: 15px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease-in-out;
+            animation: popUp 1s ease-in-out;
+        }
+
+        .gallery img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(to right, #ff512f, #dd2476);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            background: linear-gradient(to right, #dd2476, #ff512f);
+            box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div>
+            <a href="menu.html">Menu</a>
+            <a href="order.html">Order</a>
+            <a href="your_cart.html">Your Cart</a>
+            <a href="customer_orders.html" id="my-orders-link" style="display: none;">My Orders</a>
+            <a href="admin_dashboard.html" id="admin-dashboard-link" style="display: none;">Admin Dashboard</a>
+        </div>
+        <div>
+            <span id="username-display"></span>
+            <a href="login.html" id="login-link">Login</a>
+            <a href="#" id="logout-link" style="display: none;" onclick="logout()">Logout</a>
+        </div>
+    </nav>
+
+    <div class="scroll-text">🔥 Welcome to Gopalan Restaurant - Taste the Best! 🍽️</div>
+
+    <div class="container">
+        <h2>✨ Our Special Dishes ✨</h2>
+        <div class="gallery" id="gallery"></div>
+        <a href="menu.html" class="btn">View Menu 🍽️</a>
+    </div>
+
+    <script>
+        function loadMenuImages() {
+            const menuItems = JSON.parse(localStorage.getItem("menuItems"));
+            const gallery = document.getElementById("gallery");
+
+            gallery.innerHTML = ""; // Prevent duplicate images
+
+            if (menuItems && menuItems.length > 0) {
+                menuItems.forEach(item => {
+                    const imgElement = document.createElement("img");
+                    imgElement.src = item.image;
+                    imgElement.alt = item.name;
+                    gallery.appendChild(imgElement);
+                });
+            } else {
+                gallery.innerHTML = "<p>No items available. Visit the Menu page first!</p>";
+            }
+        }
+
+       function checkLoginStatus() {
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (user) {
+        document.getElementById("login-link").style.display = "none";
+        document.getElementById("logout-link").style.display = "inline";
+        document.getElementById("username-display").textContent = `Welcome, ${user.username}`;
+
+        if (user.role === "customer") {
+            document.getElementById("my-orders-link").style.display = "inline";
+        } else if (user.role === "admin") {
+            document.getElementById("admin-dashboard-link").style.display = "inline";
+        }
+    } else {
+        document.getElementById("login-link").style.display = "inline";
+        document.getElementById("logout-link").style.display = "none";
+        document.getElementById("username-display").textContent = "";
+
+        // Hide role-specific links
+        document.getElementById("my-orders-link").style.display = "none";
+        document.getElementById("admin-dashboard-link").style.display = "none";
+    }
+}
+
+        function logout() {
+            localStorage.removeItem("loggedInUser");
+            window.location.href = "login.html";
+        }
+
+        window.onload = function () {
+            checkLoginStatus();
+            loadMenuImages();
+        };
+    </script>
+</body>
+</html>

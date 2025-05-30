@@ -1,14 +1,18 @@
-# Use official nginx image as base
-FROM nginx:alpine
+ Use official Python base image
+FROM python:3.10-slim
 
-# Remove default nginx files
-RUN rm -rf /usr/share/nginx/html/*
+# Set working directory
+WORKDIR /app
 
-# Copy website files into nginx directory
-COPY ./ /usr/share/nginx/html
+# Copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port 80
+# Copy application code
+COPY . .
+
+# Expose port
 EXPOSE 80
 
-# Start nginx server
-CMD ["nginx", "-g", "daemon off;"]
+# Run the application
+CMD ["python", "app.py"]
